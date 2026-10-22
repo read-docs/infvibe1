@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ISS Tracker · SkyWatch</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="nav">
+    <span class="brand">SkyWatch</span>
+    <nav>
+      <a href="/">Tonight's Sky</a>
+      <a href="/iss.html" class="active">ISS Tracker</a>
+      <a href="/apod.html">Picture of the Day</a>
+      <a href="/aurora.html">Aurora</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>ISS Tracker</h1>
+    <p class="subtitle">Where the International Space Station is right now, and when you can see it fly over.</p>
+
+    <section id="location" class="panel"></section>
+
+    <section class="panel">
+      <div id="iss-map" class="iss-map"></div>
+      <div class="legend map-legend">
+        <span><i class="swatch track-past"></i>Last orbit</span>
+        <span><i class="swatch track-next"></i>Next orbit</span>
+      </div>
+      <div id="now-status" class="status" hidden></div>
+      <dl class="stats" id="stats"></dl>
+    </section>
+
+    <section class="panel">
+      <h2>Upcoming passes</h2>
+      <div class="toolbar">
+        <label class="check"><input type="checkbox" id="only-visible" checked> Only passes you can see</label>
+        <span class="tz-note" id="passes-tz"></span>
+      </div>
+      <div id="passes-status" class="status">Pick a location to see when the ISS passes over you.</div>
+      <div class="table-scroll">
+        <table class="bodies passes" id="passes" hidden></table>
+      </div>
+      <p class="footnote">You can see the ISS when it is lit by the Sun while your sky is dark, usually in the hour or two after sunset or before sunrise. Times are when it appears and disappears, not just when it crosses the horizon. The sky column is the forecast cloud cover for that hour.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Is our orbit engine right?</h2>
+      <p class="engine-check" id="check">Checking…</p>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/location.js"></script>
+  <script src="/js/iss.js"></script>
+</body>
+</html>

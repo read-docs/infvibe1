@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tonight's Sky · SkyWatch</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="nav">
+    <span class="brand">SkyWatch</span>
+    <nav>
+      <a href="/" class="active">Tonight's Sky</a>
+      <a href="/iss.html">ISS Tracker</a>
+      <a href="/apod.html">Picture of the Day</a>
+      <a href="/aurora.html">Aurora</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Tonight's Sky</h1>
+    <p class="subtitle">Sky visibility, the best hour to look up, and the planets, ISS and Starlink above you.</p>
+
+    <section id="location" class="panel"></section>
+
+    <div id="status" class="status">Pick a location to see tonight's sky.</div>
+
+    <div id="sky" hidden>
+      <div id="forecast-error" class="status error" hidden></div>
+      <div id="forecast-parts">
+      <section class="panel best">
+        <div class="best-label">Best viewing tonight</div>
+        <div class="best-time" id="best-time"></div>
+        <div class="best-detail" id="best-detail"></div>
+      </section>
+
+      <div class="cards">
+        <section class="panel card">
+          <h2>Night</h2>
+          <dl class="facts" id="night"></dl>
+        </section>
+        <section class="panel card">
+          <h2>Moon</h2>
+          <dl class="facts" id="moon"></dl>
+        </section>
+      </div>
+
+      <section class="panel">
+        <h2>Hour by hour</h2>
+        <div class="legend">
+          <span><i class="swatch bar"></i>Viewing score (0–100)</span>
+          <span><i class="swatch line"></i>Cloud cover (%)</span>
+        </div>
+        <div class="chart" id="chart"></div>
+        <details class="table-view">
+          <summary>Show as table</summary>
+          <table id="hours-table"></table>
+        </details>
+      </section>
+      </div>
+      <section class="panel">
+        <h2>Above you now</h2>
+        <div class="dome-layout">
+          <div class="dome-wrap">
+            <canvas id="dome" role="img" aria-label="Sky chart of the Moon, planets, ISS and Starlink satellites above you"></canvas>
+            <div class="tooltip" id="dome-tooltip" hidden></div>
+          </div>
+          <div class="dome-side">
+            <div class="legend dome-legend">
+              <span><i class="swatch dome-body"></i>Moon and planets</span>
+              <span><i class="swatch dome-iss"></i>ISS</span>
+              <span><i class="swatch dome-lit"></i>Starlink, sunlit</span>
+              <span><i class="swatch dome-dark"></i>Starlink, in Earth's shadow</span>
+            </div>
+            <p class="footnote">Hold it above your head: north at the top, east on the left. The edge is the horizon, the centre is straight up. Hover a dot for details.</p>
+            <div class="mini-card">
+              <h3>ISS</h3>
+              <p id="iss-card">Loading…</p>
+              <a href="/iss.html">Open the ISS tracker →</a>
+            </div>
+            <div class="mini-card">
+              <h3>Starlink</h3>
+              <p id="starlink-card">Loading…</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Moon and planets</h2>
+        <div id="planets-status" class="status" hidden></div>
+        <div class="table-scroll">
+          <table class="bodies" id="planets"></table>
+        </div>
+        <p class="footnote"><span id="planets-note"></span> Lower magnitude means brighter; about 6 is the faintest the naked eye can see.</p>
+      </section>
+      <p class="tz-note" id="tz-note"></p>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/location.js"></script>
+  <script src="/js/skydome.js"></script>
+  <script src="/js/sky.js"></script>
+</body>
+</html>

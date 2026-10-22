@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aurora · SkyWatch</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="nav">
+    <span class="brand">SkyWatch</span>
+    <nav>
+      <a href="/">Tonight's Sky</a>
+      <a href="/iss.html">ISS Tracker</a>
+      <a href="/apod.html">Picture of the Day</a>
+      <a href="/aurora.html" class="active">Aurora</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Aurora &amp; Space Weather</h1>
+    <p class="subtitle">Geomagnetic activity from NOAA, your magnetic latitude, and tonight's clouds: is it worth going out to look for the northern (or southern) lights?</p>
+
+    <section id="location" class="panel"></section>
+
+    <div id="status" class="status">Pick a location to see your aurora chances.</div>
+
+    <div id="aurora" hidden>
+      <section class="panel best">
+        <div class="best-label">Aurora tonight</div>
+        <div class="best-time verdict" id="verdict"></div>
+        <div class="best-detail" id="verdict-detail"></div>
+      </section>
+
+      <div class="cards">
+        <section class="panel card">
+          <h2>Right now</h2>
+          <dl class="facts" id="now-facts"></dl>
+        </section>
+        <section class="panel card">
+          <h2>Your location</h2>
+          <dl class="facts" id="place-facts"></dl>
+        </section>
+      </div>
+
+      <section class="panel">
+        <h2>Kp index, past 2 days and forecast</h2>
+        <div class="legend">
+          <span><i class="swatch bar"></i>Measured</span>
+          <span><i class="swatch bar predicted"></i>Forecast</span>
+          <span><i class="swatch threshold"></i>Kp needed here</span>
+        </div>
+        <div class="chart" id="kp-chart"></div>
+        <p class="footnote">Kp runs from 0 (quiet) to 9 (extreme storm), in 3-hour blocks. Kp 5 and up is a geomagnetic storm (NOAA G1–G5). Source: NOAA Space Weather Prediction Center.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Tonight hour by hour</h2>
+        <div class="table-scroll"><table class="bodies" id="tonight"></table></div>
+      </section>
+      <p class="tz-note" id="tz-note"></p>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/location.js"></script>
+  <script src="/js/aurora.js"></script>
+</body>
+</html>

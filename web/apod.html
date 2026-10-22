@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Picture of the Day · SkyWatch</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="nav">
+    <span class="brand">SkyWatch</span>
+    <nav>
+      <a href="/">Tonight's Sky</a>
+      <a href="/iss.html">ISS Tracker</a>
+      <a href="/apod.html" class="active">Picture of the Day</a>
+      <a href="/aurora.html">Aurora</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>NASA Picture of the Day</h1>
+    <p class="subtitle">A new image or video of the universe every day since 16 June 1995.</p>
+
+    <div class="toolbar">
+      <button id="prev">&larr; Previous</button>
+      <input type="date" id="date" min="1995-06-16">
+      <button id="next">Next &rarr;</button>
+      <button id="today">Today</button>
+    </div>
+
+    <div class="panel">
+      <div id="status" class="status">Loading…</div>
+      <article id="apod" hidden>
+        <div class="apod-media" id="media"></div>
+        <h2 class="apod-title" id="title"></h2>
+        <p class="apod-meta" id="meta"></p>
+        <p class="apod-explanation" id="explanation"></p>
+        <p class="apod-meta"><a id="source" target="_blank" rel="noopener">View on apod.nasa.gov</a></p>
+      </article>
+    </div>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script src="/js/apod.js"></script>
+</body>
+</html>

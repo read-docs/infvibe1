@@ -1,0 +1,4 @@
+build/
+cache/
+config.json
+.DS_Store
