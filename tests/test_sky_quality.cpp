@@ -1,5 +1,8 @@
 #include <doctest.h>
 
+#include <cmath>
+#include <string>
+
 #include "services/SkyQuality.hpp"
 
 namespace {
@@ -47,6 +50,38 @@ TEST_CASE("hourScore") {
         w.precipProbability = 50;
         CHECK(hourScore(w, -30, -10, 0) == 73);  // 100 - 7.5 haze - 10 humidity - 10 rain
     }
+}
+
+TEST_CASE("skyCondition") {
+    CHECK(std::string(skyCondition(0.0)) == "clear");
+    CHECK(std::string(skyCondition(0.3)) == "mostly_clear");
+    CHECK(std::string(skyCondition(0.5)) == "cloudy");
+    CHECK(std::string(skyCondition(0.9)) == "overcast");
+}
+
+TEST_CASE("skyReport rates the whole night by its dark hours") {
+    double now = 1792670400;  // Warsaw, 2026-10-22 12:00 UTC
+    auto forecast = clearForecast(now - 12 * 3600);
+    // Overcast until 23:00 UTC, clear after.
+    for (auto& h : forecast.hours) {
+        if (h.time < now + 11 * 3600) h.cloudLow = 100;
+    }
+    auto report = skyReport(forecast, 52.23, 21.01, now);
+    const auto& q = report["night_quality"];
+    int dark = 0, clear = 0, sum = 0;
+    for (const auto& h : report["hours"]) {
+        bool overcast = h["time"].get<double>() < now + 11 * 3600;
+        CHECK(h["sky"] == (overcast ? "overcast" : "clear"));
+        if (!h["dark"].get<bool>()) continue;
+        ++dark;
+        clear += !overcast;
+        sum += h["score"].get<int>();
+    }
+    CHECK(q["dark_hours"] == dark);
+    CHECK(q["clear_hours"] == clear);
+    CHECK(clear > 0);
+    CHECK(clear < dark);
+    CHECK(q["percent"] == int(std::lround(double(sum) / dark)));
 }
 
 TEST_CASE("skyReport for an ordinary night (Warsaw, 2026-10-22 12:00 UTC)") {

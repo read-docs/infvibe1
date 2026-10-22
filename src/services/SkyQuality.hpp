@@ -12,9 +12,14 @@ double cloudBlocking(const HourlyWeather& w);
 // planets or aurora.
 constexpr double kMaxCloudBlocking = 0.5;
 
+// Sky condition for a cloud blocking fraction: "clear", "mostly_clear"
+// (both good for viewing), "cloudy" or "overcast".
+const char* skyCondition(double blocking);
+
 // How good one hour is for stargazing, 0 (nothing to see) to 100 (perfect).
 int hourScore(const HourlyWeather& w, double sunAltDeg, double moonAltDeg, double moonIllumination);
 
 // The /api/sky response: Sun and Moon now, tonight's twilight times, and an
-// hourly score from sunset to sunrise with the best hour still ahead of nowUnix.
+// hourly score from sunset to sunrise with the best hour still ahead of nowUnix,
+// and a whole-night rating: the average score over the dark hours (Sun below -6°).
 nlohmann::json skyReport(const Forecast& forecast, double lat, double lon, double nowUnix);

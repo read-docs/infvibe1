@@ -23,6 +23,13 @@ double cloudBlocking(const HourlyWeather& w) {
     return 1 - clear;
 }
 
+const char* skyCondition(double blocking) {
+    if (blocking < 0.15) return "clear";
+    if (blocking < kMaxCloudBlocking) return "mostly_clear";
+    if (blocking < 0.85) return "cloudy";
+    return "overcast";
+}
+
 int hourScore(const HourlyWeather& w, double sunAltDeg, double moonAltDeg, double moonIllumination) {
     if (sunAltDeg > -6) return 0;  // civil twilight or daylight: too bright
 
@@ -57,6 +64,7 @@ json skyReport(const Forecast& forecast, double lat, double lon, double nowUnix)
 
     json hours = json::array();
     json best = nullptr;
+    int darkHours = 0, clearHours = 0, scoreSum = 0;
     double firstHour = std::floor(unixFromJd(start) / 3600) * 3600;
     for (const auto& w : forecast.hours) {
         if (w.time < firstHour || w.time > unixFromJd(end)) continue;
@@ -65,10 +73,20 @@ json skyReport(const Forecast& forecast, double lat, double lon, double nowUnix)
         double mAlt = moonAlt(jd);
         int score = hourScore(w, sAlt, mAlt, moonPhase(jd).illumination);
         bool past = w.time + 3600 <= nowUnix;
+        double blocking = cloudBlocking(w);
+        bool dark = sAlt <= -6;
+        if (dark) {
+            ++darkHours;
+            scoreSum += score;
+            if (blocking < kMaxCloudBlocking) ++clearHours;
+        }
         hours.push_back({
             {"time", std::llround(w.time)},
             {"score", score},
             {"past", past},
+            {"dark", dark},
+            {"sky", skyCondition(blocking)},
+            {"cloud_blocking", int(std::lround(blocking * 100))},
             {"cloud_cover", w.cloudCover},
             {"cloud_low", w.cloudLow},
             {"cloud_mid", w.cloudMid},
@@ -109,5 +127,10 @@ json skyReport(const Forecast& forecast, double lat, double lon, double nowUnix)
         }},
         {"hours", hours},
         {"best", best},
+        {"night_quality", {
+            {"percent", darkHours ? json(int(std::lround(double(scoreSum) / darkHours))) : json(nullptr)},
+            {"dark_hours", darkHours},
+            {"clear_hours", clearHours},
+        }},
     };
 }

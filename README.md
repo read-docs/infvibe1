@@ -10,7 +10,7 @@ All the astronomy runs in C++ without an astronomy library. That includes Sun, M
 
 | Screen | What it shows |
 |---|---|
-| **Tonight's Sky** (`/`) | Best hour to look up, sunset/twilight/sunrise, the Moon, an hourly viewing score with cloud cover, a live sky dome (Moon, planets, ISS, Starlink), the next visible ISS pass, Starlink counts, and when each planet is visible tonight in a dark, clear sky |
+| **Tonight's Sky** (`/`) | Best hour to look up, a whole-night rating (%), sunset/twilight/sunrise, the Moon, an hour-by-hour timeline of clouds (clear / mostly clear / cloudy / overcast) and viewing score, a live sky dome (Moon, planets, ISS, Starlink), the next visible ISS pass, Starlink counts, and when each planet is visible tonight in a dark, clear sky |
 | **ISS Tracker** (`/iss.html`) | Live map with the ground track, speed and altitude, where to look from your location, visible passes for the next 3 days, and a live check of our orbit engine against wheretheiss.at |
 | **Picture of the Day** (`/apod.html`) | NASA's Astronomy Picture of the Day, with a date picker back to 1995 |
 | **Aurora** (`/aurora.html`) | Kp index (measured and forecast), your geomagnetic latitude, the Kp you need, and tonight hour by hour with clouds |
@@ -54,8 +54,8 @@ TLEs are cached on disk in `cache/` because CelesTrak blocks clients that downlo
 | Endpoint | Returns |
 |---|---|
 | `GET /api/geocode?q=Warsaw` | Matching places |
-| `GET /api/sky?lat=&lon=` | Hourly viewing score, best hour, twilight times, Moon |
-| `GET /api/planets?lat=&lon=` | Moon and planets: position, magnitude, rise/set, clear-sky windows tonight |
+| `GET /api/sky?lat=&lon=` | Hourly sky condition and viewing score, best hour, whole-night rating, twilight times, Moon |
+| `GET /api/planets?lat=&lon=` | Moon and planets: position, magnitude, rise/set, clear-sky windows tonight, hourly visibility score and best hour |
 | `GET /api/iss/now[?lat=&lon=][&check=1]` | ISS position, speed, sunlight; look angles for an observer; comparison with wheretheiss.at |
 | `GET /api/iss/track?minutes=95` | Ground track around now |
 | `GET /api/iss/passes?lat=&lon=&days=3` | Passes, with the visible part and brightness |
@@ -82,6 +82,10 @@ tests/                doctest unit tests
 ```
 
 **Viewing score (0–100), per hour:** zero while the Sun is above −6°. Otherwise it starts from 100 × the fraction of sky clear of cloud, where the cloud layers block light independently and thin high cloud counts half. Haze, humidity over 85%, rain chance and a Moon above the horizon each subtract points. The result is scaled by darkness: half at −6°, full at −18° (astronomical night).
+
+**Whole-night rating (%):** the average viewing score over the dark hours (Sun below −6°), shown with how many of those hours are clear or mostly clear.
+
+**When to see each body (0–100, per hour):** 100 × altitude factor (40% at 10° up, full from 40°) × darkness (bright bodies count from early twilight: Venus with the Sun 3° down, a magnitude 2 planet only at −18°) × clear sky (0 when clouds block half the sky or more) × moonlight (dims only bodies fainter than magnitude 3). The best hour is the highest score still ahead.
 
 **Planet visibility tonight:** hours when the body is at least 10° up, the Sun is below −6°, and the forecast is mostly clear (clouds block less than half the sky).
 

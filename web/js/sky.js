@@ -5,7 +5,9 @@ const els = {
   bestDetail: document.getElementById("best-detail"),
   night: document.getElementById("night"),
   moon: document.getElementById("moon"),
-  chart: document.getElementById("chart"),
+  nightPercent: document.getElementById("night-percent"),
+  nightDetail: document.getElementById("night-detail"),
+  timeline: document.getElementById("timeline"),
   table: document.getElementById("hours-table"),
   tzNote: document.getElementById("tz-note"),
   planets: document.getElementById("planets"),
@@ -15,6 +17,8 @@ const els = {
   forecastParts: document.getElementById("forecast-parts"),
   forecastError: document.getElementById("forecast-error"),
   starlinkCard: document.getElementById("starlink-card"),
+  whenPanel: document.getElementById("when-panel"),
+  whenGrid: document.getElementById("when-grid"),
 };
 
 const dome = createSkyDome(document.getElementById("dome"), document.getElementById("dome-tooltip"));
@@ -26,7 +30,6 @@ let issPasses = null;  // next passes over the current location, refreshed with 
 const REFRESH_MS = 10 * 60 * 1000;
 let current = null;  // location being shown
 let refreshTimer = null;
-let lastRender = null;  // [data, tz] of the chart on screen, for redrawing on resize
 
 const timeIn = localTime;
 
@@ -91,106 +94,54 @@ function renderMoon(data, tz) {
   ]);
 }
 
-// Sequential blue ramp, dark (low score) to light (high score), so poor hours
-// recede into the dark surface. Steps 600 → 200 of the reference blue ramp.
-const SCORE_RAMP = ["#184f95", "#1c5cab", "#256abf", "#2a78d6", "#3987e5", "#5598e7", "#6da7ec", "#86b6ef", "#9ec5f4"];
-const scoreColor = (s) => SCORE_RAMP[Math.min(SCORE_RAMP.length - 1, Math.floor((s / 100) * SCORE_RAMP.length))];
-
-const SVG_NS = "http://www.w3.org/2000/svg";
-function svgEl(name, attrs) {
-  const el = document.createElementNS(SVG_NS, name);
-  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-  return el;
+function renderNightQuality(data) {
+  const q = data.night_quality;
+  if (q.percent == null) {
+    els.nightPercent.textContent = "–";
+    els.nightDetail.textContent = "The sky doesn't get dark tonight.";
+    return;
+  }
+  const verdict = q.percent >= 70 ? "Great night" : q.percent >= 45 ? "Decent night" : q.percent >= 20 ? "Poor night" : "Bad night";
+  els.nightPercent.textContent = `${q.percent}%`;
+  els.nightDetail.textContent = `${verdict}: ${q.clear_hours} of ${q.dark_hours} dark hours are clear or mostly clear.`;
 }
 
-// Drawn at the container's real pixel width (not a scaled viewBox) so text
-// stays readable on phones; redrawn when the window is resized.
-function renderChart(data, tz) {
-  const hours = data.hours;
-  const W = Math.max(280, els.chart.clientWidth), H = 220, left = 34, right = 8, top = 18, bottom = 26;
-  const plotW = W - left - right, plotH = H - top - bottom;
-  const colW = plotW / hours.length;
-  const y = (pct) => top + plotH * (1 - pct / 100);
+const SKY_WORDS = { clear: "Clear", mostly_clear: "Mostly clear", cloudy: "Cloudy", overcast: "Overcast" };
 
-  const svg = svgEl("svg", { width: W, height: H, role: "img", "aria-label": "Hourly viewing score and cloud cover" });
+function renderTimeline(data, tz) {
+  els.timeline.replaceChildren();
+  for (const h of data.hours) {
+    const best = data.best && h.time === data.best.time;
+    const col = document.createElement("div");
+    col.className = ["tl-hour", h.past && "past", best && "tl-top"].filter(Boolean).join(" ");
+    col.title = [
+      `${timeIn(h.time, tz)} · ${SKY_WORDS[h.sky]}, score ${h.score}%`,
+      `Clouds block ${h.cloud_blocking}% of the sky (low ${h.cloud_low}%, mid ${h.cloud_mid}%, high ${h.cloud_high}%)`,
+      `Visibility ${h.visibility_km} km · humidity ${h.humidity}% · rain chance ${h.precip_probability}%`,
+      `Sun ${h.sun_alt}° · Moon ${h.moon_alt > 0 ? `${h.moon_alt}° up` : "down"}`,
+    ].join("\n");
 
-  for (const v of [0, 50, 100]) {
-    svg.append(svgEl("line", { x1: left, x2: W - right, y1: y(v), y2: y(v), class: v === 0 ? "axis" : "grid" }));
-    const label = svgEl("text", { x: left - 6, y: y(v) + 4, class: "tick", "text-anchor": "end" });
-    label.textContent = v;
-    svg.append(label);
+    col.append(cell("div", best ? "Best" : "", "tl-best"));
+    col.append(cell("div", timeIn(h.time, tz).slice(0, 2), "tl-time"));
+    const sky = cell("div", "", `tl-sky sky-${h.dark ? h.sky : "light"}`);
+    sky.append(cell("span", h.dark ? SKY_WORDS[h.sky] : h.sun_alt > 0 ? "Daylight" : "Twilight", "tl-word"));
+    sky.append(cell("span", `${h.cloud_blocking}% cloud`, "tl-cloud"));
+    col.append(sky);
+
+    const meter = cell("div", "", "tl-meter");
+    const fill = cell("div", "", "tl-fill");
+    fill.style.height = `${h.score}%`;
+    meter.append(fill);
+    col.append(meter);
+    col.append(cell("div", h.dark ? `${h.score}%` : "–", "tl-score"));
+    els.timeline.append(col);
   }
-
-  const tooltip = document.createElement("div");
-  tooltip.className = "tooltip";
-  tooltip.hidden = true;
-
-  hours.forEach((h, i) => {
-    const x = left + i * colW;
-    const g = svgEl("g", { class: h.past ? "hour past" : "hour" });
-    // 2px gap between neighbours; 4px rounded top anchored on the baseline.
-    const bw = colW - 2, bx = x + 1;
-    if (h.score > 0) {
-      const top = y(h.score), r = Math.min(4, bw / 2, y(0) - top);
-      g.append(svgEl("path", {
-        d: `M${bx},${y(0)} V${top + r} Q${bx},${top} ${bx + r},${top} H${bx + bw - r} Q${bx + bw},${top} ${bx + bw},${top + r} V${y(0)} Z`,
-        fill: scoreColor(h.score),
-      }));
-    }
-    if (data.best && h.time === data.best.time) {
-      const t = svgEl("text", { x: x + colW / 2, y: y(h.score) - 5, class: "best-mark", "text-anchor": "middle" });
-      t.textContent = "Best";
-      g.append(t);
-    }
-    // Thin out the hour labels so they don't collide on narrow screens.
-    if (i % Math.ceil(28 / colW) === 0) {
-      const t = svgEl("text", { x: x + colW / 2, y: H - 8, class: "tick", "text-anchor": "middle" });
-      t.textContent = timeIn(h.time, tz).slice(0, 2);
-      g.append(t);
-    }
-    // Hit target: the whole column, not just the bar.
-    const hit = svgEl("rect", { x, y: top, width: colW, height: plotH, class: "hit" });
-    hit.addEventListener("pointerenter", () => {
-      tooltip.replaceChildren();
-      const head = document.createElement("strong");
-      head.textContent = `${timeIn(h.time, tz)}  ·  score ${h.score}`;
-      tooltip.append(head);
-      for (const line of [
-        `Clouds ${h.cloud_cover}% (low ${h.cloud_low}, mid ${h.cloud_mid}, high ${h.cloud_high})`,
-        `Visibility ${h.visibility_km} km · humidity ${h.humidity}%`,
-        `Rain chance ${h.precip_probability}%`,
-        `Sun ${h.sun_alt}° · Moon ${h.moon_alt > 0 ? `${h.moon_alt}° up` : "down"}`,
-      ]) {
-        const div = document.createElement("div");
-        div.textContent = line;
-        tooltip.append(div);
-      }
-      tooltip.hidden = false;
-      // Flip to the left of the column near the right edge.
-      const px = x + colW / 2;
-      tooltip.style.left = `${px}px`;
-      tooltip.style.transform = px > W * 0.6 ? "translateX(calc(-100% - 12px))" : "translateX(12px)";
-      g.classList.add("hover");
-    });
-    hit.addEventListener("pointerleave", () => {
-      tooltip.hidden = true;
-      g.classList.remove("hover");
-    });
-    g.append(hit);
-    svg.append(g);
-  });
-
-  // Cloud cover drawn on top of the bars; on the same 0–100 scale, so no second axis.
-  const points = hours.map((h, i) => `${left + (i + 0.5) * colW},${y(h.cloud_cover)}`).join(" ");
-  svg.append(svgEl("polyline", { points, class: "cloud-line" }));
-
-  els.chart.replaceChildren(svg, tooltip);
 }
 
 function renderTable(data, tz) {
-  const head = ["Time", "Score", "Clouds %", "Visibility km", "Humidity %", "Rain %", "Moon"];
+  const head = ["Time", "Sky", "Score", "Clouds %", "Visibility km", "Humidity %", "Rain %", "Moon"];
   const rows = data.hours.map((h) => [
-    timeIn(h.time, tz), h.score, h.cloud_cover, h.visibility_km, h.humidity, h.precip_probability,
+    timeIn(h.time, tz), h.dark ? SKY_WORDS[h.sky] : "Too bright", h.score, h.cloud_blocking, h.visibility_km, h.humidity, h.precip_probability,
     h.moon_alt > 0 ? `${h.moon_alt}°` : "down",
   ]);
   els.table.replaceChildren();
@@ -247,6 +198,57 @@ function renderPlanets(data, tz) {
       tr.append(cell("td", b.high_tonight ? "Clouded out" : "Not visible", "muted"));
     }
     els.planets.append(tr);
+  }
+}
+
+// Sequential blue ramp, dark (poor) to light (good), steps 600 → 200 of the reference blue.
+const SCORE_RAMP = ["#184f95", "#1c5cab", "#256abf", "#2a78d6", "#3987e5", "#5598e7", "#6da7ec", "#86b6ef", "#9ec5f4"];
+const rampIndex = (score) => Math.min(SCORE_RAMP.length - 1, Math.floor((score / 100) * SCORE_RAMP.length));
+
+function limitWords(h) {
+  if (h.limit === "too_low") return h.alt < 0 ? "below the horizon" : "too low (under 10°)";
+  return { too_bright: "the sky is too bright", clouds: "clouds", moonlight: "moonlight" }[h.limit];
+}
+
+// One row per body, one column per hour of tonight, shaded by how well it can be seen.
+function renderWhenGrid(data, tz) {
+  const hours = data.bodies[0].hours;
+  els.whenPanel.hidden = !hours.length;
+  if (!hours.length) return;
+  const grid = els.whenGrid;
+  grid.replaceChildren();
+  grid.style.gridTemplateColumns = `minmax(7.5rem, auto) repeat(${hours.length}, minmax(2.3rem, 1fr))`;
+
+  grid.append(cell("div", "", "wg-corner"));
+  const pastAt = hours.map((h) => h.time + 3600 <= data.now);
+  hours.forEach((h, i) => grid.append(cell("div", timeIn(h.time, tz).slice(0, 2), pastAt[i] ? "wg-hour past" : "wg-hour")));
+
+  for (const b of data.bodies) {
+    const label = cell("div", "", "wg-label");
+    label.append(cell("strong", b.name));
+    let note;
+    if (b.best) note = `best ${timeIn(b.best.time, tz)}, ${Math.round(b.best.alt)}° ${b.best.direction}`;
+    else if (b.hours.some((h) => h.limit === "clouds" && h.alt >= 10)) note = "clouded out";
+    else note = "not visible tonight";
+    if (!b.naked_eye) note += " · telescope";
+    label.append(cell("span", note, b.best ? "" : "muted"));
+    grid.append(label);
+
+    b.hours.forEach((h, i) => {
+      const best = b.best && h.time === b.best.time;
+      const c = cell("div", h.score > 0 ? h.score : "", "wg-cell");
+      if (h.score > 0) {
+        const k = rampIndex(h.score);
+        c.style.background = SCORE_RAMP[k];
+        if (k >= 5) c.classList.add("light");
+      }
+      if (best) c.classList.add("best-cell");
+      if (pastAt[i]) c.classList.add("past");
+      const where = h.alt > 0 ? `${Math.round(h.alt)}° up in the ${h.direction}` : "below the horizon";
+      const held = h.limit && h.score < 100 ? ` Held back by ${limitWords(h)}.` : "";
+      c.title = `${b.name} at ${timeIn(h.time, tz)}: ${where}, score ${h.score}.${held}`;
+      grid.append(c);
+    });
   }
 }
 
@@ -354,12 +356,12 @@ async function load(loc) {
     renderBest(data, tz);
     renderNight(data, tz);
     renderMoon(data, tz);
+    renderNightQuality(data);
+    renderTimeline(data, tz);
     renderTable(data, tz);
-    lastRender = [data, tz];
     els.forecastParts.hidden = false;
     els.forecastError.hidden = true;
   } else {
-    lastRender = null;
     els.forecastParts.hidden = true;
     els.forecastError.textContent = `The weather forecast is unavailable, so there is no viewing score right now (${sky.reason.message}).`;
     els.forecastError.hidden = false;
@@ -369,13 +371,14 @@ async function load(loc) {
     : tz === browserTz ? "" : `All times are local to the location (${tz}).`;
   els.status.hidden = true;
   els.sky.hidden = false;
-  if (lastRender) renderChart(...lastRender);  // after unhiding, so the chart can measure its width
 
   if (planets.status === "fulfilled") {
     renderPlanets(planets.value, tz);
+    renderWhenGrid(planets.value, tz);
     els.planetsStatus.hidden = true;
   } else {
     els.planets.replaceChildren();
+    els.whenPanel.hidden = true;
     els.planetsStatus.textContent = `Couldn't load the planets: ${planets.reason.message}`;
     els.planetsStatus.className = "status error";
     els.planetsStatus.hidden = false;
@@ -400,7 +403,6 @@ window.addEventListener("resize", () => {
   cancelAnimationFrame(resizeFrame);
   resizeFrame = requestAnimationFrame(() => {
     if (els.sky.hidden) return;
-    if (lastRender) renderChart(...lastRender);
     dome.draw(domeData);
   });
 });
