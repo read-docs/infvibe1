@@ -30,7 +30,7 @@ const issMarker = L.marker([0, 0], {
   icon: L.divIcon({ className: "iss-icon", html: "<span>ISS</span>", iconSize: [44, 22] }),
   zIndexOffset: 1000,
 });
-const observerMarker = L.circleMarker([0, 0], { radius: 6, color: "#e6ebf5", weight: 2, fillOpacity: 0 });
+const observerMarker = L.circleMarker([0, 0], { radius: 6, color: "#f4efe6", weight: 2, fillOpacity: 0 });
 const trackLayer = L.layerGroup().addTo(map);
 let centredOnce = false;
 
@@ -57,10 +57,10 @@ async function loadTrack() {
     const past = data.points.filter((p) => p.time <= data.now);
     const next = data.points.filter((p) => p.time >= data.now);
     for (const piece of splitAtDateLine(past)) {
-      L.polyline(piece, { color: "#8c97b0", weight: 2, dashArray: "4 6", interactive: false }).addTo(trackLayer);
+      L.polyline(piece, { color: "#a9a3b8", weight: 2, dashArray: "4 6", interactive: false }).addTo(trackLayer);
     }
     for (const piece of splitAtDateLine(next)) {
-      L.polyline(piece, { color: "#6ea8ff", weight: 2, interactive: false }).addTo(trackLayer);
+      L.polyline(piece, { color: "#f2c46d", weight: 2, interactive: false }).addTo(trackLayer);
     }
   } catch {
     // The position updates report errors; a missing track line is self-explanatory.

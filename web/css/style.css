@@ -1,19 +1,21 @@
 :root {
-  --bg: #070b16;
-  --panel: #111829;
-  --border: #1f2a44;
-  --text: #e6ebf5;
-  --muted: #8c97b0;
-  --accent: #6ea8ff;
-  --error: #ff7a7a;
+  --bg: #0a0c18;
+  --panel: rgba(255, 255, 255, 0.035);
+  --border: rgba(244, 239, 230, 0.13);
+  --text: #f4efe6;
+  --muted: #a9a3b8;
+  --accent: #f2c46d;
+  --error: #ff8a7a;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: radial-gradient(ellipse at top, #111a33 0%, var(--bg) 60%) fixed;
+  font-family: -apple-system, system-ui, "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #2b1d3a 0, #151329 520px, var(--bg) 1200px) no-repeat, var(--bg);
   color: var(--text);
   line-height: 1.5;
 }
@@ -22,33 +24,29 @@ a { color: var(--accent); }
 
 header.nav {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 0.9rem 1.5rem;
-  border-bottom: 1px solid var(--border);
-  background: rgba(7, 11, 22, 0.8);
-  backdrop-filter: blur(6px);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  align-items: baseline;
+  gap: 1.75rem;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.2rem 1.75rem 0;
 }
 
-.nav .brand { font-weight: 700; font-size: 1.15rem; letter-spacing: 0.02em; }
-.nav nav { display: flex; gap: 1rem; flex-wrap: wrap; }
+.nav .brand { font-family: var(--serif); font-size: 1.35rem; letter-spacing: 0.01em; }
+.nav nav { display: flex; gap: 1.2rem; flex-wrap: wrap; font-size: 0.9rem; }
 .nav nav a { color: var(--muted); text-decoration: none; padding: 0.2rem 0; }
 .nav nav a:hover { color: var(--text); }
-.nav nav a.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+.nav nav a.active { color: var(--text); font-weight: 500; }
 
-main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+main { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1.75rem 3rem; }
 
-h1 { margin: 0 0 0.25rem; font-size: 1.8rem; }
-.subtitle { color: var(--muted); margin: 0 0 1.5rem; }
+h1 { margin: 1.5rem 0 0.5rem; font-family: var(--serif); font-weight: 400; font-size: 2.6rem; line-height: 1.1; }
+.subtitle { color: var(--muted); margin: 0 0 1.75rem; font-size: 1.05rem; max-width: 46rem; }
 
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.25rem;
+  border-radius: 14px;
+  padding: 1.25rem 1.4rem;
 }
 
 .toolbar { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
@@ -56,7 +54,7 @@ h1 { margin: 0 0 0.25rem; font-size: 1.8rem; }
 button, input[type="date"] {
   font: inherit;
   color: var(--text);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.45rem 0.8rem;
@@ -90,7 +88,8 @@ button:disabled { opacity: 0.4; cursor: default; }
   border-radius: 8px;
 }
 
-h2 { font-size: 1.05rem; margin: 0 0 0.75rem; }
+h2 { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; margin: 0 0 0.75rem; }
+.panel h2 { font-size: 1.3rem; }
 main > .panel, #sky > .panel, #forecast-parts > .panel, #aurora > .panel, .cards { margin-bottom: 1rem; }
 
 /* Location picker */
@@ -119,9 +118,8 @@ main > .panel, #sky > .panel, #forecast-parts > .panel, #aurora > .panel, .cards
 /* Tonight's Sky */
 .best { text-align: center; padding: 1.5rem 1.25rem; }
 .best-label { color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; }
-.best-time { font-size: 3rem; font-weight: 700; line-height: 1.15; margin: 0.25rem 0; font-variant-numeric: tabular-nums; }
+.best-time { font-family: var(--serif); font-size: 3rem; font-weight: 400; line-height: 1.15; margin: 0.25rem 0; font-variant-numeric: tabular-nums; }
 .best-detail { color: var(--muted); }
-.best-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1.25rem; }
 
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
 .cards .panel { margin: 0; }
@@ -132,37 +130,8 @@ main > .panel, #sky > .panel, #forecast-parts > .panel, #aurora > .panel, .cards
 .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
 .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
 .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
-.swatch.bar { background: #3987e5; }
+.swatch.bar { background: var(--accent); }
 
-/* Sky conditions: green is good for viewing, grey is not. */
-.sky-clear { background: #3ccf86; color: #03140b; }
-.sky-mostly_clear { background: #1d7d55; color: #e9fff3; }
-.sky-cloudy { background: #3a4561; color: #c9d1e3; }
-.sky-overcast { background: #232a3d; color: var(--muted); }
-.sky-light { background: repeating-linear-gradient(135deg, #1a2236 0 6px, #141b2c 6px 12px); color: var(--muted); }
-
-.timeline { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 0.25rem; }
-.tl-hour { flex: 1 0 3rem; display: flex; flex-direction: column; align-items: stretch; text-align: center; cursor: default; }
-.tl-hour.past { opacity: 0.45; }
-.tl-best { height: 1.1rem; font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
-.tl-time { color: var(--muted); font-size: 0.8rem; font-variant-numeric: tabular-nums; margin-bottom: 0.25rem; }
-.tl-hour.tl-top .tl-time { color: var(--text); font-weight: 600; }
-.tl-sky {
-  height: 4.2rem;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.15rem;
-  padding: 0 0.15rem;
-  line-height: 1.1;
-}
-.tl-hour.tl-top .tl-sky { outline: 2px solid var(--accent); outline-offset: 1px; }
-.tl-word { font-size: 0.7rem; font-weight: 600; }
-.tl-cloud { font-size: 0.68rem; opacity: 0.85; font-variant-numeric: tabular-nums; }
-.tl-meter { height: 3rem; margin: 0.4rem auto 0; width: 60%; background: var(--border); border-radius: 4px; display: flex; align-items: flex-end; overflow: hidden; }
-.tl-fill { width: 100%; background: var(--accent); }
-.tl-score { font-size: 0.8rem; font-variant-numeric: tabular-nums; margin-top: 0.2rem; }
 
 .chart { position: relative; }
 .chart svg { display: block; overflow: visible; }
@@ -177,7 +146,7 @@ main > .panel, #sky > .panel, #forecast-parts > .panel, #aurora > .panel, .cards
   position: absolute;
   top: 0;
   pointer-events: none;
-  background: #0b1120;
+  background: #17142a;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.5rem 0.7rem;
@@ -197,15 +166,15 @@ main > .panel, #sky > .panel, #forecast-parts > .panel, #aurora > .panel, .cards
 .wg-cell {
   height: 2.2rem;
   border-radius: 4px;
-  background: #161e31;
-  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
   font-size: 0.72rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: default;
 }
-.wg-cell.light { color: #071a33; }
+.wg-cell.light { color: #241a08; }
 .wg-cell.best-cell { outline: 2px solid var(--text); outline-offset: 1px; font-weight: 700; }
 .wg-cell.past, .wg-hour.past { opacity: 0.45; }
 
@@ -217,8 +186,53 @@ main > .panel, #sky > .panel, #forecast-parts > .panel, #aurora > .panel, .cards
 .table-view td { color: var(--text); }
 .tz-note { color: var(--muted); font-size: 0.85rem; }
 
+/* Tonight's Sky: headline, big numbers, panorama, cards */
+.loc-slim { background: none; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; padding: 0 0 0.9rem; }
+.story { margin-bottom: 1rem; }
+.kicker { margin-top: 2rem; text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.75rem; color: var(--accent); }
+.story h1 { font-size: 3.6rem; line-height: 1.06; margin: 0.6rem 0 0.9rem; max-width: 58rem; }
+.story h1 em { color: var(--accent); }
+.lede { font-size: 1.15rem; color: var(--muted); max-width: 46rem; margin: 0; }
+.lede strong { color: var(--text); font-weight: 500; }
+.story-facts { display: flex; flex-wrap: wrap; gap: 1.5rem 2.75rem; margin-top: 1.75rem; padding: 1.1rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.sf-value { font-family: var(--serif); font-size: 2.3rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.sf-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.4rem; }
+
+.story-section { margin-top: 2.75rem; }
+.story-section > h2 { margin-bottom: 0.2rem; }
+.sub { color: var(--muted); margin: 0 0 0.9rem; }
+h3.minor { font-family: var(--serif); font-weight: 400; font-size: 1.25rem; margin: 2rem 0 0.6rem; }
+
+.pano-scroll { overflow-x: auto; }
+.pano { display: block; width: 100%; min-width: 640px; height: auto; }
+.pano-label { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.pano-label.gold { fill: var(--accent); }
+.pano-label.strong { font-weight: 600; }
+.pano-name { font-size: 12px; }
+.pano-grid { stroke: rgba(244, 239, 230, 0.12); }
+.pano-gold { fill: var(--accent); }
+.pano-track { fill: rgba(244, 239, 230, 0.08); }
+.pano-dot { stroke: var(--bg); stroke-width: 2; }
+.pano-past { fill: rgba(10, 12, 24, 0.45); }
+.pano-now { stroke: var(--text); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.6; }
+.pano-hit { fill: transparent; }
+.pano-hit:hover { fill: rgba(255, 255, 255, 0.06); }
+.key { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
+.key i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 0.4rem; }
+.key i.haze { height: 10px; background: rgba(200, 200, 215, 0.35); }
+
+.look-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem; margin-top: 1rem; }
+.look-card { border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.25rem; background: var(--panel); }
+.look-card h3 { font-family: var(--serif); font-weight: 400; font-size: 1.35rem; margin: 0 0 0.2rem; display: flex; align-items: center; gap: 0.6rem; }
+.look-card .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 0.45rem; vertical-align: 0.05em; }
+.look-card h3 .dot { margin: 0; }
+.look-when { font-family: var(--serif); font-size: 1.9rem; color: var(--accent); line-height: 1.2; }
+.look-card p { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.9rem; }
+.look-card.off { opacity: 0.7; }
+.look-card.off strong { color: var(--text); font-weight: 500; }
+
 /* Leaflet controls on a dark page */
-.leaflet-container { background: #0b1120; font: inherit; }
+.leaflet-container { background: #120f22; font: inherit; }
 
 /* Moon and planets */
 .table-scroll { overflow-x: auto; }
@@ -241,17 +255,17 @@ main > .panel, #sky > .panel, #forecast-parts > .panel, #aurora > .panel, .cards
 /* ISS */
 .iss-map { height: 420px; border-radius: 8px; border: 1px solid var(--border); }
 .map-legend { margin: 0.6rem 0 0; }
-.swatch.track-past { height: 0; width: 18px; border-top: 2px dashed #8c97b0; border-radius: 0; }
-.swatch.track-next { height: 2px; width: 18px; background: #6ea8ff; border-radius: 1px; }
+.swatch.track-past { height: 0; width: 18px; border-top: 2px dashed #a9a3b8; border-radius: 0; }
+.swatch.track-next { height: 2px; width: 18px; background: var(--accent); border-radius: 1px; }
 .iss-icon span {
   display: block;
   padding: 1px 6px;
   border-radius: 999px;
   background: var(--accent);
-  color: #06101f;
+  color: #241a08;
   font: 700 12px/20px system-ui, sans-serif;
   text-align: center;
-  box-shadow: 0 0 0 3px rgba(110, 168, 255, 0.3);
+  box-shadow: 0 0 0 3px rgba(242, 196, 109, 0.3);
 }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.9rem 1.25rem; margin: 1rem 0 0; }
 .stats dt { color: var(--muted); font-size: 0.85rem; }
@@ -267,19 +281,19 @@ main > .panel, #sky > .panel, #forecast-parts > .panel, #aurora > .panel, .cards
 .dome-wrap { position: relative; }
 .dome-wrap canvas { display: block; margin: 0 auto; touch-action: none; }
 .dome-legend { flex-direction: column; gap: 0.35rem; }
-.swatch.dome-body { background: #e6ebf5; border-radius: 50%; }
+.swatch.dome-body { background: #f4efe6; border-radius: 50%; }
 .swatch.dome-iss { background: #d95926; border-radius: 50%; }
 .swatch.dome-lit { background: #199e70; border-radius: 50%; width: 8px; height: 8px; margin: 0 2px; }
 .swatch.dome-dark { background: #4b5568; border-radius: 50%; width: 8px; height: 8px; margin: 0 2px; }
 .mini-card { border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.9rem; }
-.mini-card h3 { margin: 0 0 0.3rem; font-size: 0.95rem; }
+.mini-card h3 { margin: 0 0 0.3rem; font-family: var(--serif); font-weight: 400; font-size: 1.15rem; }
 .mini-card p { margin: 0 0 0.3rem; }
 .mini-card .muted { color: var(--muted); }
 
 /* Aurora */
 .verdict { font-size: 2.2rem; }
-.chart .kp-bar { fill: #3987e5; }
-.chart .kp-bar.predicted { fill: #3987e5; opacity: 0.45; }
+.chart .kp-bar { fill: var(--accent); }
+.chart .kp-bar.predicted { fill: var(--accent); opacity: 0.45; }
 .chart .threshold { stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 5 4; }
 .chart .threshold-label { fill: var(--text); }
 .chart .now-line { stroke: var(--muted); stroke-width: 1; }
@@ -305,11 +319,14 @@ main > .panel, #sky > .panel, #forecast-parts > .panel, #aurora > .panel, .cards
 
 /* Phones: brand on its own line, nav links scroll sideways instead of wrapping */
 @media (max-width: 600px) {
-  header.nav { flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 0.6rem 1rem; }
+  header.nav { flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 0.8rem 1rem 0; }
   .nav nav { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; gap: 1rem; scrollbar-width: none; }
   .nav nav a { white-space: nowrap; }
   main { padding: 1rem; }
-  h1 { font-size: 1.5rem; }
+  h1 { font-size: 2rem; }
+  .story h1 { font-size: 2.3rem; }
+  .sf-value { font-size: 1.8rem; }
+  .story-facts { gap: 1rem 1.75rem; }
   .best-time { font-size: 2.4rem; }
   .verdict { font-size: 1.8rem; }
   .panel { padding: 1rem; }

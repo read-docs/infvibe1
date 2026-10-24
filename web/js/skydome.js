@@ -3,10 +3,10 @@
 // east on the LEFT, the way a sky map is held up overhead.
 
 const DOME_COLORS = {
-  surface: "#0b1120",
-  ring: "#1f2a44",
-  label: "#8c97b0",
-  body: "#e6ebf5",      // Moon and planets
+  surface: "#120f22",
+  ring: "#2c2840",
+  label: "#a9a3b8",
+  body: "#f4efe6",      // Moon and planets
   iss: "#d95926",       // categorical slot 2
   starlinkLit: "#199e70",  // categorical slot 3
   starlinkDark: "#4b5568",

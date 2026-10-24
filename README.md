@@ -10,7 +10,7 @@ All the astronomy runs in C++ without an astronomy library. That includes Sun, M
 
 | Screen | What it shows |
 |---|---|
-| **Tonight's Sky** (`/`) | Best hour to look up, a whole-night rating (%), sunset/twilight/sunrise, the Moon, an hour-by-hour timeline of clouds (clear / mostly clear / cloudy / overcast) and viewing score, a live sky dome (Moon, planets, ISS, Starlink), the next visible ISS pass, Starlink counts, and when each planet is visible tonight in a dark, clear sky |
+| **Tonight's Sky** (`/`) | A one-line verdict for the night ("A poor night in Cairo, but the sky clears 20:00–03:00"), the whole-night rating (%), best hour and Moon, a chart of the night (how high each planet climbs per hour, with cloud haze, cloud % and viewing score under each hour), a card per planet with its best hour, an hour-by-hour visibility grid, a live sky dome (Moon, planets, ISS, Starlink), the next visible ISS pass and Starlink counts |
 | **ISS Tracker** (`/iss.html`) | Live map with the ground track, speed and altitude, where to look from your location, visible passes for the next 3 days, and a live check of our orbit engine against wheretheiss.at |
 | **Picture of the Day** (`/apod.html`) | NASA's Astronomy Picture of the Day, with a date picker back to 1995 |
 | **Aurora** (`/aurora.html`) | Kp index (measured and forecast), your geomagnetic latitude, the Kp you need, and tonight hour by hour with clouds |

@@ -19,58 +19,44 @@
   </header>
 
   <main>
-    <h1>Tonight's Sky</h1>
-    <p class="subtitle">Sky visibility, the best hour to look up, and the planets, ISS and Starlink above you.</p>
+    <section id="location" class="panel loc-slim"></section>
 
-    <section id="location" class="panel"></section>
+    <header class="story">
+      <div class="kicker" id="kicker">Tonight's sky</div>
+      <h1 id="headline">Tonight's Sky</h1>
+      <p class="lede" id="lede">Sky visibility, the best hour to look up, and the planets, ISS and Starlink above you.</p>
+      <div class="story-facts" id="story-facts" hidden></div>
+    </header>
 
     <div id="status" class="status">Pick a location to see tonight's sky.</div>
 
     <div id="sky" hidden>
       <div id="forecast-error" class="status error" hidden></div>
-      <div id="forecast-parts">
-      <section class="panel best best-pair">
-        <div class="best-stat">
-          <div class="best-label">Best hour tonight</div>
-          <div class="best-time" id="best-time"></div>
-          <div class="best-detail" id="best-detail"></div>
+      <section class="story-section" id="forecast-parts">
+        <h2>The night at a glance</h2>
+        <p class="sub" id="pano-sub"></p>
+        <div class="pano-scroll">
+          <svg class="pano" id="pano" role="img" aria-label="Chart of tonight: how high the Moon and planets climb each hour, with cloud cover and the viewing score"></svg>
         </div>
-        <div class="best-stat">
-          <div class="best-label">Whole night</div>
-          <div class="best-time" id="night-percent"></div>
-          <div class="best-detail" id="night-detail"></div>
-        </div>
-      </section>
-
-      <div class="cards">
-        <section class="panel card">
-          <h2>Night</h2>
-          <dl class="facts" id="night"></dl>
-        </section>
-        <section class="panel card">
-          <h2>Moon</h2>
-          <dl class="facts" id="moon"></dl>
-        </section>
-      </div>
-
-      <section class="panel">
-        <h2>Tonight, hour by hour</h2>
-        <div class="legend">
-          <span><i class="swatch sky-clear"></i>Clear</span>
-          <span><i class="swatch sky-mostly_clear"></i>Mostly clear</span>
-          <span><i class="swatch sky-cloudy"></i>Cloudy</span>
-          <span><i class="swatch sky-overcast"></i>Overcast</span>
-          <span><i class="swatch sky-light"></i>Too bright</span>
-        </div>
-        <div class="timeline" id="timeline"></div>
-        <p class="footnote">Each hour shows how much of the sky the clouds block and its viewing score. Clear and mostly clear (clouds block less than half the sky) are good for stargazing. The whole-night score is the average over the dark hours; the Moon and haze lower it too. Hover an hour for details.</p>
+        <div class="key" id="pano-key"></div>
+        <p class="footnote">Grey haze over an hour means clouds; the background gets darker as twilight ends. Under each hour: how much of the sky the clouds block (gold when it is clear or mostly clear, which is good for stargazing) and the viewing score. Hover an hour for details.</p>
         <details class="table-view">
           <summary>Show as table</summary>
-          <table id="hours-table"></table>
+          <div class="table-scroll"><table id="hours-table"></table></div>
         </details>
       </section>
-      </div>
-      <section class="panel">
+
+      <section class="story-section" id="look-section" hidden>
+        <h2>What to look for</h2>
+        <div class="look-cards" id="look-cards"></div>
+        <h3 class="minor">Hour by hour</h3>
+        <div class="table-scroll">
+          <div class="when-grid" id="when-grid"></div>
+        </div>
+        <p class="footnote">Each cell rates how well you can see the body that hour (0–100): higher in the sky, darker and clearer is better, and a cloudy hour scores 0. Bright planets show in twilight; faint ones need full darkness and suffer under moonlight. The outlined cell is its best hour still ahead. Hover a cell for details.</p>
+      </section>
+
+      <section class="story-section">
         <h2>Above you now</h2>
         <div class="dome-layout">
           <div class="dome-wrap">
@@ -98,16 +84,8 @@
         </div>
       </section>
 
-      <section class="panel" id="when-panel" hidden>
-        <h2>When to see the Moon and planets</h2>
-        <div class="table-scroll">
-          <div class="when-grid" id="when-grid"></div>
-        </div>
-        <p class="footnote">Each cell rates how well you can see the body that hour (0–100): higher in the sky, darker and clearer is better, and a cloudy hour scores 0. Bright planets show in twilight; faint ones need full darkness and suffer under moonlight. The outlined cell is its best hour still ahead. Hover a cell for details.</p>
-      </section>
-
-      <section class="panel">
-        <h2>Moon and planets</h2>
+      <section class="story-section">
+        <h2>Rise, set and brightness</h2>
         <div id="planets-status" class="status" hidden></div>
         <div class="table-scroll">
           <table class="bodies" id="planets"></table>
