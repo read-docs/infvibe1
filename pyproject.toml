@@ -1,0 +1,13 @@
+[project]
+name = "skywatch"
+version = "0.2.0"
+description = "What can you see in the sky tonight? Stargazing web app with its own astronomy engine."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+# sgp4 is only a cross-check in the tests; the app uses its own propagator.
+dev = ["pytest", "sgp4"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -3,3 +3,6 @@ cache/
 config.json
 .DS_Store
 design-concepts/
+.venv/
+__pycache__/
+.pytest_cache/
