@@ -4,6 +4,7 @@ import re
 import time
 from dataclasses import dataclass
 
+from skywatch.errors import InvalidArgument
 from skywatch.http.cache import Cache
 from skywatch.http.client import HttpError, http_get, parse_json
 
@@ -160,10 +161,10 @@ class NasaApod:
 
     def fetch(self, date: str) -> dict:
         """date is "YYYY-MM-DD", or empty for today. Returns the APOD fields the
-        frontend uses. Raises ValueError for a malformed date and HttpError when
+        frontend uses. Raises InvalidArgument for a malformed date and HttpError when
         NASA rejects the request."""
         if date and not _DATE_PATTERN.fullmatch(date):
-            raise ValueError("date must be YYYY-MM-DD")
+            raise InvalidArgument("date must be YYYY-MM-DD")
 
         # Today's entry can still change (NASA sometimes publishes it late or broken), so cache it briefly.
         is_today = not date or date == _nasa_today()

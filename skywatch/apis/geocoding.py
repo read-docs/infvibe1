@@ -1,5 +1,6 @@
 """Open-Meteo place search: https://open-meteo.com/en/docs/geocoding-api"""
 
+from skywatch.errors import InvalidArgument
 from skywatch.http.cache import Cache
 from skywatch.http.client import HttpError, http_get, parse_json, url_encode
 
@@ -10,10 +11,10 @@ class Geocoding:
 
     def search(self, query: str) -> list[dict]:
         """Up to 8 places matching the name, each {name, region, country, lat, lon}.
-        Raises ValueError for a query under 2 characters and HttpError on API failure."""
+        Raises InvalidArgument for a query under 2 characters and HttpError on API failure."""
         # The API itself returns nothing for 1-character names.
         if len(query.encode()) < 2:
-            raise ValueError("search text must be at least 2 characters")
+            raise InvalidArgument("search text must be at least 2 characters")
         cached = self._cache.get(query)
         if cached is not None:
             return cached
