@@ -2,9 +2,13 @@ import pytest
 from helpers import approx
 from sgp4_vectors import SGP4_CASES
 
+from skywatch.apis.open_meteo import Forecast, HourlyWeather
 from skywatch.astro.coords import Geodetic, ecef_to_geodetic, geodetic_to_ecef, look_angles
+from skywatch.astro.passes import ISS_STD_MAGNITUDE, find_passes
 from skywatch.astro.sgp4 import Sgp4, Sgp4Error
+from skywatch.astro.time import jd_from_unix, unix_from_jd
 from skywatch.astro.tle import parse_tle, parse_tle_file
+from skywatch.services.iss import iss_passes
 
 
 def test_tle_parsing_iss():
@@ -83,3 +87,45 @@ def test_earth_fixed_conversions_round_trip():
     look = look_angles(geodetic_to_ecef(g), Geodetic(52.23, 21.01, 0))
     assert look.h.alt_deg == approx(90, 1e-6)
     assert look.range_km == approx(420, 1e-6)
+
+
+ISS_2026 = (
+    "1 25544U 98067A   26294.95113894  .00010428  00000-0  19720-3 0  9990",
+    "2 25544  51.6330  32.7943 0006789 293.2617  66.7657 15.48983994591404",
+)
+
+
+def test_iss_pass_over_warsaw_matches_pyephem():
+    iss = Sgp4(parse_tle(*ISS_2026))
+    warsaw = Geodetic(52.23, 21.01, 0)
+    start = jd_from_unix(1792723800)  # 2026-10-23 02:50 UTC
+    passes = find_passes(iss, warsaw, start, start + 0.05, ISS_STD_MAGNITUDE)
+    assert len(passes) == 1
+    p = passes[0]
+    # Reference: PyEphem's next_pass with the same TLE (rise/set at 0°, no refraction).
+    assert unix_from_jd(p.rise.jd) == approx(1792724200.3, 3e-9)  # ±5 s
+    assert unix_from_jd(p.peak.jd) == approx(1792724527.9, 3e-9)
+    assert unix_from_jd(p.set.jd) == approx(1792724856.9, 3e-9)
+    assert p.rise.az_deg == approx(248.46, 1e-3)
+    assert p.peak.alt_deg == approx(61.715, 1e-3)
+    assert p.set.az_deg == approx(80.94, 1e-3)
+    # A dark morning sky: the ISS shows once it leaves Earth's shadow, just after the peak.
+    assert p.visible
+    assert p.visible_start is not None
+    assert p.visible_start.jd > p.peak.jd
+    assert p.brightest_magnitude < -3
+
+
+def test_iss_passes_marks_a_visible_pass_under_clouds_as_not_clear():
+    iss = Sgp4(parse_tle(*ISS_2026))
+    start = 1792723800  # 2026-10-23 02:50 UTC; the visible pass starts ~03:02
+    f = Forecast("GMT", 0, [HourlyWeather(start - 1800 + i * 3600.0, 100, 100, 0, 0, 24000, 90, 0) for i in range(-2, 4)])
+    out = iss_passes(iss, Geodetic(52.23, 21.01, 0), start, 0.05, f)
+    assert len(out["passes"]) == 1
+    assert out["passes"][0]["visible"] is True
+    assert out["passes"][0]["clear"] is False
+    assert out["passes"][0]["cloud"] == 100
+
+    # Without a forecast there is no cloud information at all.
+    no_weather = iss_passes(iss, Geodetic(52.23, 21.01, 0), start, 0.05, None)
+    assert "clear" not in no_weather["passes"][0]
