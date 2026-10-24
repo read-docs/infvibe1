@@ -1,7 +1,8 @@
-"""Compares the C++ and Python servers endpoint by endpoint.
+"""Compares two SkyWatch servers endpoint by endpoint.
 
-Start both first:
-    ./build/skywatch                       # C++ on :8080
+Written to check the Python port against the original C++ server (on `main`
+before the rewrite). Start both first:
+    ./build/skywatch                       # C++ on :8080, built from the old main
     python3 -m skywatch --port 8081        # Python on :8081
 then run:
     python3 tools/parity.py [--cpp URL] [--py URL]

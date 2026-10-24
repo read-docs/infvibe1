@@ -1,8 +1,8 @@
 # SkyWatch
 
-What can you see in the sky tonight? SkyWatch is a C++ web app that answers that for any place on Earth. It shows when the sky is clearest, which planets are up, when the International Space Station flies over, where the Starlink satellites are, NASA's picture of the day, and whether aurora is likely.
+What can you see in the sky tonight? SkyWatch is a Python web app that answers that for any place on Earth. It shows when the sky is clearest, which planets are up, when the International Space Station flies over, where the Starlink satellites are, NASA's picture of the day, and whether aurora is likely.
 
-All the astronomy runs in C++ without an astronomy library. That includes Sun, Moon and planet positions, an SGP4 satellite orbit propagator, pass prediction, and Earth's shadow. The browser only draws what the server computes.
+All the astronomy is our own Python code, without an astronomy library. That includes Sun, Moon and planet positions, an SGP4 satellite orbit propagator, pass prediction, and Earth's shadow. The browser only draws what the server computes.
 
 ![Tonight's Sky](docs/screenshots/tonight.png)
 
@@ -23,14 +23,20 @@ Pick a location by searching for a city, clicking the map, or using your browser
 
 ## Build and run
 
-You need a C++17 compiler, CMake 3.20+ and OpenSSL (`brew install cmake openssl` on macOS). The other libraries (cpp-httplib, nlohmann/json, doctest) are downloaded by CMake.
+You need Python 3.11 or newer. The app uses only the standard library, so there is nothing to install or build to run it.
 
 ```sh
 cp config.example.json config.json   # then put your NASA API key in it
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j
-./build/skywatch                       # open http://localhost:8080
-./build/skywatch_tests                 # unit tests
+python3 -m skywatch                    # open http://localhost:8080
+python3 -m skywatch --port 8081        # another port than the one in config.json
+```
+
+The tests need pytest (and the `sgp4` package, used only to cross-check our own propagator):
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -e '.[dev]'
+.venv/bin/python -m pytest
 ```
 
 `config.json` holds the port and the NASA API key. `DEMO_KEY` works but allows only 30 requests an hour; a personal key is free at <https://api.nasa.gov>.
@@ -66,8 +72,10 @@ TLEs are cached on disk in `cache/` because CelesTrak blocks clients that downlo
 ## How it works
 
 ```
-src/
-  main.cpp            routes
+skywatch/
+  __main__.py         start the server
+  server.py           routes, query parameter checks, error mapping, static files
+  config.py           config.json
   http/               HTTPS client and TTL cache
   apis/               one client per external API
   astro/              the astronomy engine (no external library)
@@ -78,7 +86,8 @@ src/
     passes            pass prediction, visibility (sunlit satellite, dark sky), brightness
   services/           combine astronomy and API data into the JSON each screen needs
 web/                  static HTML/CSS/JS, Leaflet maps, SVG charts, canvas sky dome
-tests/                doctest unit tests
+tests/                pytest unit tests, and every route through the server with fake upstream APIs
+tools/parity.py       compares every endpoint with another running server (used to check the port from C++)
 ```
 
 **Viewing score (0–100), per hour:** zero while the Sun is above −6°. Otherwise it starts from 100 × the fraction of sky clear of cloud, where the cloud layers block light independently and thin high cloud counts half. Haze, humidity over 85%, rain chance and a Moon above the horizon each subtract points. The result is scaled by darkness: half at −6°, full at −18° (astronomical night).
@@ -95,11 +104,13 @@ tests/                doctest unit tests
 
 | What | Checked against | Result |
 |---|---|---|
-| SGP4 | Vallado's official verification vectors (all 9 near-Earth cases, 126 time steps) | within 1 m and 1 mm/s |
+| SGP4 | Vallado's official verification vectors (all 9 near-Earth cases, 158 time steps) | within 1 m and 1 mm/s |
+| SGP4 | the `sgp4` Python package, same TLE, 5 days | within 1 m |
 | ISS position | wheretheiss.at, live | about 1.6 km apart (their TLE is older; the ISS travels 7.7 km/s) |
 | ISS passes | PyEphem with the same TLE, 3 days over Warsaw | rise, peak and set within about 1 s |
 | Sun and Moon | Meeus's worked examples; PyEphem for 5 cities × 5 dates | rise/set within 15 s, positions within 0.02° |
 | Planets | Meeus example 33.a; PyEphem for 3 cities × 5 dates | positions within 0.08°, rise/set within 30 s |
+| Whole API | the original C++ server, every endpoint for 5 places (`tools/parity.py`) | same JSON; times within 1 s, angles within 0.2° |
 
 ## Limitations
 

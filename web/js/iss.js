@@ -86,7 +86,7 @@ function formatLatLon(lat, lon) {
 function renderCheck(data) {
   const c = data.check;
   const tleAge = data.tle.age_hours < 48 ? `${Math.round(data.tle.age_hours)} hours` : `${(data.tle.age_hours / 24).toFixed(1)} days`;
-  const source = `Our C++ SGP4 engine computes every position on this page from orbital elements (TLE) published by ${data.tle.source}, ${tleAge} old.`;
+  const source = `Our own SGP4 engine computes every position on this page from orbital elements (TLE) published by ${data.tle.source}, ${tleAge} old.`;
   if (!c || c.error) {
     els.check.textContent = `${source} The independent live position (wheretheiss.at) is unavailable right now${c ? `: ${c.error}` : ""}.`;
     return;

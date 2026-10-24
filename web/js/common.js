@@ -1,4 +1,4 @@
-// Fetches JSON from our C++ backend; throws with the server's error message on failure.
+// Fetches JSON from our backend; throws with the server's error message on failure.
 async function fetchJson(url) {
   const res = await fetch(url);
   let body;
