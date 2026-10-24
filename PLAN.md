@@ -2,8 +2,6 @@
 
 Rewrite the backend from C++ to Python. The frontend stays exactly as it is, with every feature; only the backend changes. All work happens on the `python-rewrite` branch and `main` is untouched until the merge.
 
-> **Check first:** the original project requirements listed "Written in C++" and "Own ISS flight engine … written in C++" as requirements. A Python backend no longer meets them, so confirm with whoever set the task before handing it in.
-
 ## What stays the same
 
 - **`web/` doesn't change.** Every API path, query parameter, JSON field name and the 400/502 error shape `{"error": "..."}` stays the same, so the frontend can't tell the difference.
